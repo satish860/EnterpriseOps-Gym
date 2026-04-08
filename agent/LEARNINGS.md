@@ -74,6 +74,31 @@ teams get-user --userPrincipalName alice.manager@techcorp.com | grep '"id"'
 teams list-chats | grep <userId>
 ```
 
+### `add_tabs_to_channels` / `add_tab_to_chat` — teamsApp_odata_bind needs real app ID
+- **Wrong:** guessing `teamsApp_odata_bind` value
+- **Right:** call `teams list-teams-apps` first to get the real app `id`, then build the URL:
+```bash
+# Step 1 — get available apps
+teams list-teams-apps
+
+# Step 2 — use the id to build teamsApp_odata_bind
+teams add-tabs-to-channels \
+  --teamId "team_techcorp_001" \
+  --channelId "<real_channel_id>" \
+  --displayName "Planner" \
+  --teamsApp_odata_bind "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.planner"
+```
+- **Known app IDs in the DB:**
+
+| App | ID | teamsApp_odata_bind |
+|---|---|---|
+| Planner | `com.microsoft.teamspace.tab.planner` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.planner` |
+| SharePoint | `2a527703-1f6f-4559-a332-d8a7d288cd88` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/2a527703-1f6f-4559-a332-d8a7d288cd88` |
+| OneNote | `0d820ecd-def2-4297-adad-78056cde7c79` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/0d820ecd-def2-4297-adad-78056cde7c79` |
+| Power BI | `com.microsoft.teamspace.tab.powerbi` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.powerbi` |
+| Website | `com.microsoft.teamspace.tab.web` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.web` |
+| Trello | `com.trello.tab` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.trello.tab` |
+
 ---
 
 ## Patterns That Work
