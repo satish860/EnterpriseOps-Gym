@@ -8,6 +8,10 @@
 
 import * as path from "path";
 import * as readline from "readline";
+
+// Put bin/ on PATH so `teams` CLI works
+const BIN_DIR = path.resolve(import.meta.dirname, "../bin").replace(/\\/g, "/");
+process.env.PATH = `${BIN_DIR}${path.delimiter}${process.env.PATH}`;
 import {
   AuthStorage,
   createAgentSession,
@@ -31,11 +35,15 @@ The environment variable TEAMS_TOKEN is already set.
 
 ## Teams CLI
 
-You have a \`teams\` CLI available in bash. It wraps 70 Microsoft Teams tools.
+You have a \`teams\` CLI available in bash. It is already on your PATH. It wraps 70 Microsoft Teams tools.
 
 **How to call it:**
 \`\`\`bash
-teams <tool-name> --param1 value1 --param2 value2
+teams list-users --_top 5
+teams list-teams
+teams get-user --userPrincipalName alice.manager@techcorp.com
+teams create-channel --teamId team_001 --displayName "Engineering"
+teams send-chat-message --chatId chat_001 --body '{"contentType":"text","content":"Hello"}'
 \`\`\`
 
 Tool names use hyphens: \`list-users\`, \`send-chat-message\`, \`create-channel\`.

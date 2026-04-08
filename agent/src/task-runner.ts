@@ -8,7 +8,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { seedDatabase } from "./client.js";
+import { seedDatabase, runSQL } from "./client.js";
 import { runTask } from "./ask-agent.js";
 
 const HF_DATASET = "ServiceNow-AI/EnterpriseOps-Gym";
@@ -119,6 +119,59 @@ export async function setupTask(task: Task): Promise<string> {
   return databaseId;
 }
 
+// ── Verify task: run verifier SQLs, return pass/fail scorecard ────────────
+
+export async function verifyTask(
+  task: Task,
+  dbId: string
+): Promise<{ passed: number; failed: number; total: number }> {
+  const line = "─".repeat(60);
+  console.log(`\n${line}`);
+  console.log(`VERIFICATION RESULTS`);
+  console.log(line);
+
+  let passed = 0;
+  let failed = 0;
+
+  for (const v of task.verifiers) {
+    try {
+      const result = await runSQL(dbId, v.validation_config.query);
+      // sql-runner returns { data: [{"COUNT(*)": N}] }
+      const row = result?.data?.[0];
+      const actual = row ? Object.values(row)[0] : undefined;
+      const expected = v.validation_config.expected_value;
+
+      let ok = false;
+      switch (v.validation_config.comparison_type) {
+        case "equals":  ok = actual == expected; break;
+        case "gt":      ok = actual >  expected; break;
+        case "gte":     ok = actual >= expected; break;
+        case "lt":      ok = actual <  expected; break;
+        case "lte":     ok = actual <= expected; break;
+        default:        ok = actual == expected;
+      }
+
+      const icon = ok ? "✅" : "❌";
+      console.log(`${icon} ${v.name}`);
+      if (!ok) {
+        console.log(`   Expected: ${v.validation_config.comparison_type} ${expected}`);
+        console.log(`   Actual:   ${JSON.stringify(actual)}`);
+      }
+
+      ok ? passed++ : failed++;
+    } catch (err: any) {
+      console.log(`❌ ${v.name} — SQL error: ${err.message}`);
+      failed++;
+    }
+  }
+
+  console.log(`\n${line}`);
+  console.log(`Score: ${passed}/${passed + failed} verifiers passed`);
+  console.log(line);
+
+  return { passed, failed, total: passed + failed };
+}
+
 // ── Display task ─────────────────────────────────────────────────────────────
 
 function displayTask(task: Task) {
@@ -165,6 +218,7 @@ async function main() {
 
   const dbId = await setupTask(task);
   await runTask(task, dbId);
+  await verifyTask(task, dbId);
 }
 
 main().catch((err) => {

@@ -131,6 +131,29 @@ export async function deleteDatabase(databaseId: string): Promise<boolean> {
   }
 }
 
+// ── runSQL ──────────────────────────────────────────────────────────────────
+
+export async function runSQL(
+  databaseId: string,
+  query: string
+): Promise<any> {
+  const response = await fetch(`${BASE_URL}/api/sql-runner`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-database-id": databaseId,
+    },
+    body: JSON.stringify({ database_id: databaseId, query }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`SQL runner error (${response.status}): ${text}`);
+  }
+
+  return (await response.json()) as any;
+}
+
 // ── listTools ───────────────────────────────────────────────────────────────
 
 export async function listTools(): Promise<any[]> {
