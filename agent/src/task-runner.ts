@@ -9,6 +9,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { seedDatabase } from "./client.js";
+import { runTask } from "./ask-agent.js";
 
 const HF_DATASET = "ServiceNow-AI/EnterpriseOps-Gym";
 const HF_CONFIG  = "oracle";
@@ -163,8 +164,7 @@ async function main() {
   displayTask(task);
 
   const dbId = await setupTask(task);
-  console.log(`\nTEAMS_DB=${dbId}`);
-  console.log(`TEAMS_TOKEN=${task.access_token}`);
+  await runTask(task, dbId);
 }
 
 main().catch((err) => {

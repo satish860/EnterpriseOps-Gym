@@ -1,78 +1,68 @@
 /**
- * Simple Pi SDK Agent — Ask questions about available EnterpriseOps-Gym tools
+ * Pi SDK Agent — runs EnterpriseOps-Gym tasks via Teams CLI
  *
- * Usage:
- *   npx tsx src/ask-agent.ts "What tools are available for Teams?"
- *   npx tsx src/ask-agent.ts  (interactive — reads from stdin)
+ * Two modes:
+ *   Interactive Q&A:  npx tsx src/ask-agent.ts
+ *   Task execution:   imported by task-runner.ts via runTask()
  */
 
-import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
 import {
   AuthStorage,
-  codingTools,
   createAgentSession,
   DefaultResourceLoader,
   ModelRegistry,
   SessionManager,
 } from "@mariozechner/pi-coding-agent";
+import type { Task } from "./task-runner.js";
 
-// ── 1. Discover all server README.md files ──────────────────────────────────
+// ── 1. Build the append prompt for a task ───────────────────────────────────
 
-function discoverToolDocs(): string {
-  const serversDir = path.resolve(import.meta.dirname, "..", "servers");
-  if (!fs.existsSync(serversDir)) {
-    return "No server tool documentation found yet. Run generate:all first.";
-  }
+const README_PATH = path.resolve(import.meta.dirname, "../servers/teams/README.md").replace(/\\/g, "/");
 
-  const domains = fs.readdirSync(serversDir).filter((d) => {
-    const readmePath = path.join(serversDir, d, "README.md");
-    return fs.existsSync(readmePath);
-  });
+function buildTaskAppend(task: Task, dbId: string): string {
+  return `
+## Task Context
 
-  if (domains.length === 0) {
-    return "No server tool documentation found yet. Run generate scripts first.";
-  }
+You are acting as: **${task.user_info.name}** <${task.user_info.email}> (user_id: ${task.user_info.user_id})
+The environment variable TEAMS_DB is already set to \`${dbId}\`.
+The environment variable TEAMS_TOKEN is already set.
 
-  const docs: string[] = [];
-  for (const domain of domains) {
-    const readmePath = path.join(serversDir, domain, "README.md");
-    const content = fs.readFileSync(readmePath, "utf-8");
-    docs.push(`\n${"=".repeat(60)}\nDOMAIN: ${domain.toUpperCase()}\n${"=".repeat(60)}\n\n${content}`);
-  }
+## Teams CLI
 
-  return docs.join("\n");
-}
+You have a \`teams\` CLI available in bash. It wraps 70 Microsoft Teams tools.
 
-// ── 2. Build the system prompt ──────────────────────────────────────────────
+**How to call it:**
+\`\`\`bash
+teams <tool-name> --param1 value1 --param2 value2
+\`\`\`
 
-function buildSystemPrompt(toolDocs: string): string {
-  return `You are an expert assistant for the EnterpriseOps-Gym benchmark.
+Tool names use hyphens: \`list-users\`, \`send-chat-message\`, \`create-channel\`.
+For object/array parameters, pass JSON: \`--body '{"contentType":"text","content":"Hello"}'\`
 
-You know all about the MCP tools available across 8 enterprise domains:
-- Teams (port 8002): Channels, messages, team management
-- CSM / Customer Service (port 8001): Tickets, cases, customer records
-- Email (port 8004): Send/read emails, mailboxes, attachments
-- ITSM / IT Service Mgmt (port 8006): Incidents, change requests, CMDB
-- Calendar (port 8003): Events, scheduling, availability
-- HR (port 8008): Employee records, leave, org structure
-- Drive (port 8009): Files, folders, sharing permissions
+**How to discover tools and parameters:**
+The full reference is at \`${README_PATH}\`
+- Scan the Tool Index at the top for available tools
+- Use grep to look up any tool's parameters:
+\`\`\`bash
+grep -A 20 "^### \\\`send_chat_message\\\`" ${README_PATH}
+\`\`\`
 
-When asked about tools, answer from the documentation below.
-When asked how to use a tool, show the TypeScript usage example.
-Be concise but thorough.
+## Guidelines
 
-## Available Tool Documentation
-
-${toolDocs}
+- Always query/list first before creating or mutating — understand the current state
+- Use grep on the README to look up tool parameters before calling — don't guess
+- For user lookups use userPrincipalName, not displayName
+- When creating chats, the members array needs proper odata format
+- If a command errors, read the error message carefully — it tells you what's wrong
+- Complete the task fully, then stop — do not ask for confirmation
 `;
 }
 
-// ── 3. Format tool results for display ─────────────────────────────────────
+// ── 2. Display helpers (Claude-style tool output) ───────────────────────────
 
 function formatToolResult(result: any): string {
-  // Pi tools return { content: [{ type: "text", text: "..." }] }
   if (result?.content && Array.isArray(result.content)) {
     return result.content
       .map((block: any) => {
@@ -106,36 +96,8 @@ function indent(text: string, maxLines: number): string[] {
   return trimmed.map((l) => `  ${l}`);
 }
 
-// ── 4. Create agent session & prompt ────────────────────────────────────────
-
-async function main() {
-  const toolDocs = discoverToolDocs();
-  const systemPrompt = buildSystemPrompt(toolDocs);
-
-  console.log("🔧 EnterpriseOps-Gym Tool Explorer Agent");
-  console.log("─".repeat(45));
-
-  // Set up auth (uses env var ANTHROPIC_API_KEY or ~/.pi/agent/auth.json)
-  const authStorage = AuthStorage.create();
-  const modelRegistry = ModelRegistry.create(authStorage);
-
-  // Custom resource loader with our system prompt
-  const loader = new DefaultResourceLoader({
-    systemPromptOverride: () => systemPrompt,
-    appendSystemPromptOverride: () => [],
-  });
-  await loader.reload();
-
-  const { session } = await createAgentSession({
-    resourceLoader: loader,
-    sessionManager: SessionManager.inMemory(),
-    authStorage,
-    modelRegistry,
-    tools: codingTools, // read, bash, edit, write — lets the agent explore & answer
-  });
-
-  // Stream text + show tool calls (Claude-style)
-  session.subscribe((event) => {
+function subscribeOutput(session: any) {
+  session.subscribe((event: any) => {
     switch (event.type) {
       case "message_update":
         if (event.assistantMessageEvent.type === "text_delta") {
@@ -166,10 +128,61 @@ async function main() {
       }
     }
   });
+}
 
-  // ── Single-shot mode (CLI argument) ─────────────────────────────────────
+// ── 3. Create a session with task context appended ──────────────────────────
+
+async function createSession(appendPrompt?: string) {
+  const authStorage = AuthStorage.create();
+  const modelRegistry = ModelRegistry.create(authStorage);
+
+  const loader = new DefaultResourceLoader({
+    appendSystemPromptOverride: (base) => {
+      const parts = [...base];
+      if (appendPrompt) parts.push(appendPrompt);
+      return parts;
+    },
+  });
+  await loader.reload();
+
+  const { session } = await createAgentSession({
+    resourceLoader: loader,
+    sessionManager: SessionManager.inMemory(),
+    authStorage,
+    modelRegistry,
+  });
+
+  subscribeOutput(session);
+  return session;
+}
+
+// ── 4. Run a task (called by task-runner.ts) ────────────────────────────────
+
+export async function runTask(task: Task, dbId: string): Promise<void> {
+  // Set env vars so the teams CLI picks them up
+  process.env.TEAMS_DB = dbId;
+  process.env.TEAMS_TOKEN = task.access_token;
+
+  const appendPrompt = buildTaskAppend(task, dbId);
+  const session = await createSession(appendPrompt);
+
+  console.log(`\n❓ Task: ${task.user_prompt}\n`);
+  await session.prompt(task.user_prompt);
+  console.log("\n");
+
+  session.dispose();
+}
+
+// ── 5. Interactive Q&A mode (standalone) ────────────────────────────────────
+
+async function main() {
+  console.log("🔧 EnterpriseOps-Gym Agent");
+  console.log("─".repeat(45));
+
+  // Single-shot from CLI args
   const question = process.argv.slice(2).join(" ").trim();
   if (question) {
+    const session = await createSession();
     console.log(`\n❓ ${question}\n`);
     await session.prompt(question);
     console.log("\n");
@@ -177,14 +190,11 @@ async function main() {
     return;
   }
 
-  // ── Interactive mode ────────────────────────────────────────────────────
-  console.log("Ask me anything about the available MCP tools.");
-  console.log('Type "exit" or Ctrl+C to quit.\n');
+  // Interactive mode
+  const session = await createSession();
+  console.log("Ask me anything. Type 'exit' to quit.\n");
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
   const askQuestion = (): void => {
     rl.question("You> ", async (input) => {
@@ -195,10 +205,9 @@ async function main() {
         session.dispose();
         return;
       }
-
-      console.log(); // blank line before response
+      console.log();
       await session.prompt(trimmed);
-      console.log("\n"); // blank line after response
+      console.log("\n");
       askQuestion();
     });
   };
@@ -206,7 +215,11 @@ async function main() {
   askQuestion();
 }
 
-main().catch((err) => {
-  console.error("Fatal:", err);
-  process.exit(1);
-});
+// Only run main when executed directly, not when imported
+const isDirectRun = process.argv[1]?.includes("ask-agent");
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error("Fatal:", err);
+    process.exit(1);
+  });
+}

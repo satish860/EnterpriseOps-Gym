@@ -1,9 +1,115 @@
 # TEAMS Tools (70 total)
 
-Agent: read this file to discover available tools. Import from `index.js`.
+This is the reference manual for the `teams` CLI. All commands require `TEAMS_DB` to be set.
 
-```typescript
-import * as teams from "../servers/teams/index.js";
+## How to use this file
+
+Do NOT read the whole file. Instead:
+1. Scan the **Tool Index** below to find the right tool
+2. Use `grep` to look up parameters on demand:
+
+```bash
+grep -A 20 "^### \`create_channel\`" agent/servers/teams/README.md
+```
+
+## Quick start
+
+```bash
+# Seed a database for a task
+export TEAMS_DB=$(teams seed --sql-file path/to/db.sql)
+
+# Run any tool
+teams list-users --_top 5
+teams list-teams
+teams get-user --userPrincipalName alice.manager@techcorp.com
+teams create-channel --teamId team_techcorp_001 --displayName "Engineering"
+teams send-chat-message --chatId chat_001 --body '{"contentType":"text","content":"Hello"}'
+```
+
+**CLI rule:** tool names use hyphens (`list-users`), parameters use `--` flags (`--teamId`). For object/array params pass JSON: `--body '{"content":"hi"}'`
+
+## Tool Index
+
+| Tool | What it does |
+|---|---|
+| `list_users` | List users in the organization |
+| `create_user` | Create a new user |
+| `get_user` | Get a user by ID or email |
+| `update_user` | Update user properties |
+| `delete_user` | Delete a user |
+| `create_chat` | Create a one-on-one or group chat |
+| `update_chat` | Update a chat topic |
+| `list_chats` | List chats for the current user |
+| `list_chat_messages` | List messages in a chat |
+| `add_tab_to_chat` | Pin a tab to a chat |
+| `send_chat_message` | Send a message in a chat |
+| `soft_delete_chat_message` | Soft-delete a chat message |
+| `undo_soft_delete_chat_message` | Restore a soft-deleted chat message |
+| `update_chat_message` | Update a chat message |
+| `set_chat_message_reaction` | React to a chat message |
+| `unset_chat_message_reaction` | Remove a reaction from a chat message |
+| `pin_chat_message` | Pin a message in a chat |
+| `create_channel` | Create a channel in a team |
+| `update_channel` | Update channel properties |
+| `list_channels` | List channels in a team |
+| `list_all_channels` | List all channels including shared |
+| `get_primary_channel` | Get the General channel of a team |
+| `add_channel_member` | Add a member to a channel |
+| `archive_channel` | Archive a channel |
+| `list_channel_messages` | List messages in a channel |
+| `send_channel_message` | Send a message to a channel |
+| `soft_delete_channel_message` | Soft-delete a channel message |
+| `undo_soft_delete_channel_message` | Restore a soft-deleted channel message |
+| `update_channel_message` | Update a channel message |
+| `set_channel_message_reaction` | React to a channel message |
+| `unset_channel_message_reaction` | Remove a reaction from a channel message |
+| `get_files_folder` | Get the file storage folder for a channel |
+| `list_tabs_in_channel` | List tabs in a channel |
+| `add_tabs_to_channels` | Pin a tab to a channel |
+| `provision_channel_email` | Provision email for a channel |
+| `update_channel_tab` | Update a channel tab |
+| `delete_channel_tab` | Remove a tab from a channel |
+| `create_team` | Create a new team |
+| `list_teams` | List all teams in the organization |
+| `update_team` | Update team properties |
+| `delete_team` | Delete a team |
+| `list_team_members` | List members of a team |
+| `add_team_member` | Add a member to a team |
+| `add_team_members_in_bulk` | Add multiple members to a team at once |
+| `update_team_member` | Update a member's role in a team |
+| `remove_team_member` | Remove a member from a team |
+| `list_installed_apps` | List apps installed in a team |
+| `create_teamwork_tag` | Create a tag in a team |
+| `list_teamwork_tags` | List tags in a team |
+| `update_teamwork_tag` | Update a tag |
+| `create_teamwork_tag_member` | Add a user to a tag |
+| `create_group` | Create a Microsoft 365 / security group |
+| `list_groups` | List groups in the organization |
+| `update_group` | Update group properties |
+| `add_group_owner` | Add an owner to a group |
+| `list_call_records` | List call records |
+| `get_call_record` | Get a specific call record |
+| `list_call_sessions` | List sessions in a call record |
+| `create_call` | Create an outgoing call or join a meeting |
+| `create_audio_routing_group` | Create an audio routing group for a call |
+| `set_user_status_message` | Set a user's status message |
+| `create_virtual_event_webinar` | Create a webinar (draft) |
+| `get_virtual_event_webinar` | Get a webinar by ID |
+| `list_virtual_event_webinars` | List all webinars |
+| `publish_virtual_event_webinar` | Publish a webinar |
+| `cancel_virtual_event_webinar` | Cancel a webinar |
+| `create_virtual_event_townhall` | Create a townhall (draft) |
+| `list_virtual_event_townhalls` | List all townhalls |
+| `cancel_virtual_event_townhall` | Cancel a townhall |
+| `list_teams_apps` | List apps in the Teams app catalog |
+
+---
+
+## Tool Details
+
+_Grep for any tool name to see its parameters. Example:_
+```bash
+grep -A 20 "^### \`send_chat_message\`" agent/servers/teams/README.md
 ```
 
 ## Tools
@@ -19,9 +125,8 @@ List users in the organization.
 - `_select` (optional): Comma-separated list of properties to return (e.g., "displayName,mail,jobTitle")
 - `_count` (optional): Include total count in response
 
-**Usage:**
-```typescript
-await teams.listUsers();
+```bash
+teams list-users
 ```
 
 ### `create_user`
@@ -67,15 +172,8 @@ Create a new user in the organization.
 - `schools` (optional): List of schools attended
 - `employeeOrgData` (optional): Organization data (costCenter and division)
 
-**Usage:**
-```typescript
-await teams.createUser({
-  userPrincipalName: "userPrincipalName_value",
-  displayName: "displayName_value",
-  accountEnabled: true,
-  mailNickname: "mailNickname_value",
-  passwordProfile: 0
-});
+```bash
+teams create-user --userPrincipalName "userPrincipalName_value" --displayName "displayName_value" --accountEnabled true --mailNickname "mailNickname_value" --passwordProfile 0
 ```
 
 ### `get_user`
@@ -86,9 +184,8 @@ Retrieve a specific user by their ID or userPrincipalName.
 - `userPrincipalName` (optional): User principal name in email format (e.g., 'alice.manager@techcorp.com'). Either
 - `_select` (optional): Comma-separated list of properties to return (e.g., "displayName,mail,jobTitle")
 
-**Usage:**
-```typescript
-await teams.getUser();
+```bash
+teams get-user
 ```
 
 ### `update_user`
@@ -135,9 +232,8 @@ Update user properties.
 - `schools` (optional): Schools attended - omit or use empty array to clear
 - `employeeOrgData` (optional): Organization data - omit to leave unchanged, provide empty object {} to clear
 
-**Usage:**
-```typescript
-await teams.updateUser();
+```bash
+teams update-user
 ```
 
 ### `delete_user`
@@ -147,9 +243,8 @@ Delete a user by ID or userPrincipalName.
 - `userId` (optional): User identifier (UUID format). Either 'userId' or 'userPrincipalName' must be pr
 - `userPrincipalName` (optional): User principal name in email format (e.g., 'alice.manager@techcorp.com'). Either
 
-**Usage:**
-```typescript
-await teams.deleteUser();
+```bash
+teams delete-user
 ```
 
 ### `create_chat`
@@ -161,12 +256,8 @@ Create a new chat (one-on-one or group) following Microsoft Graph API v1.0 speci
 - `members` (**required**): List of conversation members. Each member must include _odata_type, roles, and u
 - `installedApps` (optional): Apps to install in the chat during creation (optional)
 
-**Usage:**
-```typescript
-await teams.createChat({
-  chatType: "chatType_value",
-  members: []
-});
+```bash
+teams create-chat --chatType "chatType_value" --members []
 ```
 
 ### `update_chat`
@@ -176,12 +267,8 @@ Update a chat's properties (currently only topic is supported). Only group chats
 - `chatId` (**required**): Unique chat identifier
 - `topic` (**required**): Chat topic/title to update
 
-**Usage:**
-```typescript
-await teams.updateChat({
-  chatId: "chatId_value",
-  topic: "topic_value"
-});
+```bash
+teams update-chat --chatId "chatId_value" --topic "topic_value"
 ```
 
 ### `list_chats`
@@ -193,9 +280,8 @@ List chats for the authenticated user (Microsoft Graph API compliant).
 - `_filter` (optional): Filters results. OData filter expression for filtering chat results.
 - `_orderby` (optional): Sort order. Currently supports 'lastMessagePreview/createdDateTime desc' only. A
 
-**Usage:**
-```typescript
-await teams.listChats();
+```bash
+teams list-chats
 ```
 
 ### `list_chat_messages`
@@ -208,11 +294,8 @@ List messages in a chat (Microsoft Graph API compliant).
 - `_orderby` (optional): Sort order. ONLY supports 'lastModifiedDateTime desc' (default) or 'createdDateT
 - `_filter` (optional): Date range filter. MUST match the property in _orderby parameter. Format: 'lastM
 
-**Usage:**
-```typescript
-await teams.listChatMessages({
-  chatId: "chatId_value"
-});
+```bash
+teams list-chat-messages --chatId "chatId_value"
 ```
 
 ### `add_tab_to_chat`
@@ -224,13 +307,8 @@ Add (pin) a tab to the specified chat.
 - `teamsApp_odata_bind` (**required**): Teams app reference. Must be full Microsoft Graph URL: https://graph.microsoft.c
 - `configuration` (optional): Container for custom settings applied to a tab
 
-**Usage:**
-```typescript
-await teams.addTabToChat({
-  chatId: "chatId_value",
-  displayName: "displayName_value",
-  teamsApp_odata_bind: "teamsApp_odata_bind_value"
-});
+```bash
+teams add-tab-to-chat --chatId "chatId_value" --displayName "displayName_value" --teamsApp_odata_bind "teamsApp_odata_bind_value"
 ```
 
 ### `send_chat_message`
@@ -250,12 +328,8 @@ Send a new message in a chat (Microsoft Graph API compliant). API Endpoint: POST
 - `policyViolation` (optional): Defines the properties of a policy violation set by a data loss prevention (DLP)
 - `messageType` (optional): The type of chat message. The possible values are: message, chatEvent, typing, u
 
-**Usage:**
-```typescript
-await teams.sendChatMessage({
-  chatId: "chatId_value",
-  body: 0
-});
+```bash
+teams send-chat-message --chatId "chatId_value" --body 0
 ```
 
 ### `soft_delete_chat_message`
@@ -265,12 +339,8 @@ Delete a single chatMessage in a chat (Microsoft Graph API compliant). API Endpo
 - `chatId` (**required**): Unique chat identifier
 - `messageId` (**required**): Unique message identifier to soft delete
 
-**Usage:**
-```typescript
-await teams.softDeleteChatMessage({
-  chatId: "chatId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams soft-delete-chat-message --chatId "chatId_value" --messageId "messageId_value"
 ```
 
 ### `undo_soft_delete_chat_message`
@@ -280,12 +350,8 @@ Undo soft deletion of a single chatMessage in a chat (Microsoft Graph API compli
 - `chatId` (**required**): Unique chat identifier
 - `messageId` (**required**): Unique message identifier to restore
 
-**Usage:**
-```typescript
-await teams.undoSoftDeleteChatMessage({
-  chatId: "chatId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams undo-soft-delete-chat-message --chatId "chatId_value" --messageId "messageId_value"
 ```
 
 ### `update_chat_message`
@@ -303,12 +369,8 @@ Update a chat message (Microsoft Graph API compliant). API Endpoint: PATCH /chat
 - `messageHistory` (optional): Updated message edit history
 - `policyViolation` (optional): ONLY application permissions (Chat.UpdatePolicyViolation.All) can update this pr
 
-**Usage:**
-```typescript
-await teams.updateChatMessage({
-  chatId: "chatId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams update-chat-message --chatId "chatId_value" --messageId "messageId_value"
 ```
 
 ### `set_chat_message_reaction`
@@ -319,13 +381,8 @@ Set a reaction to a chat message (Microsoft Graph API compliant).
 - `messageId` (**required**): Unique message identifier to react to
 - `reactionType` (**required**): The reaction type as unicode (e.g., '💘', '👍', '❤️', '😂', '😮', '😢', '😡')
 
-**Usage:**
-```typescript
-await teams.setChatMessageReaction({
-  chatId: "chatId_value",
-  messageId: "messageId_value",
-  reactionType: "reactionType_value"
-});
+```bash
+teams set-chat-message-reaction --chatId "chatId_value" --messageId "messageId_value" --reactionType "reactionType_value"
 ```
 
 ### `unset_chat_message_reaction`
@@ -336,13 +393,8 @@ Unset a reaction from a chat message (Microsoft Graph API compliant).
 - `messageId` (**required**): Unique message identifier to remove reaction from
 - `reactionType` (**required**): The reaction type as unicode to remove (e.g., '💘', '👍', '❤️', '😂', '😮', '😢'
 
-**Usage:**
-```typescript
-await teams.unsetChatMessageReaction({
-  chatId: "chatId_value",
-  messageId: "messageId_value",
-  reactionType: "reactionType_value"
-});
+```bash
+teams unset-chat-message-reaction --chatId "chatId_value" --messageId "messageId_value" --reactionType "reactionType_value"
 ```
 
 ### `pin_chat_message`
@@ -352,12 +404,8 @@ Pin a message in a chat (Microsoft Graph API compliant).
 - `chatId` (**required**): Unique chat identifier
 - `messageId` (**required**): The unique identifier of the message to pin
 
-**Usage:**
-```typescript
-await teams.pinChatMessage({
-  chatId: "chatId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams pin-chat-message --chatId "chatId_value" --messageId "messageId_value"
 ```
 
 ### `create_channel`
@@ -372,12 +420,8 @@ Create a new channel in a team. API Endpoint: POST /teams/{team-id}/channels
 - `isFavoriteByDefault` (optional): Whether channel is favorite by default
 - `_microsoft_graph_channelCreationMode` (optional): Special creation mode for data migration. When specified, createdDateTime can be
 
-**Usage:**
-```typescript
-await teams.createChannel({
-  teamId: "teamId_value",
-  displayName: "displayName_value"
-});
+```bash
+teams create-channel --teamId "teamId_value" --displayName "displayName_value"
 ```
 
 ### `update_channel`
@@ -390,12 +434,8 @@ Update a channel's properties. API Endpoint: PATCH /teams/{team-id}/channels/{ch
 - `description` (optional): Updated channel description
 - `isFavoriteByDefault` (optional): Updated favorite by default setting
 
-**Usage:**
-```typescript
-await teams.updateChannel({
-  teamId: "teamId_value",
-  channelId: "channelId_value"
-});
+```bash
+teams update-channel --teamId "teamId_value" --channelId "channelId_value"
 ```
 
 ### `list_channels`
@@ -406,11 +446,8 @@ Retrieve the list of channels in a team (Microsoft Graph API compliant).
 - `_filter` (optional): OData filter expression. Examples: 'membershipType eq \'private\'', 'membershipT
 - `_select` (optional): Comma-separated list of properties to return for performance optimization. Recom
 
-**Usage:**
-```typescript
-await teams.listChannels({
-  teamId: "teamId_value"
-});
+```bash
+teams list-channels --teamId "teamId_value"
 ```
 
 ### `list_all_channels`
@@ -421,11 +458,8 @@ Get the list of channels either in this team or shared with this team (Microsoft
 - `_filter` (optional): OData filter expression for membershipType filtering
 - `_select` (optional): Comma-separated list of properties to return for performance optimization. Recom
 
-**Usage:**
-```typescript
-await teams.listAllChannels({
-  teamId: "teamId_value"
-});
+```bash
+teams list-all-channels --teamId "teamId_value"
 ```
 
 ### `get_primary_channel`
@@ -437,11 +471,8 @@ Get the primary channel (General channel) for a team (Microsoft Graph API compli
 - `_select` (optional): Comma-separated list of properties to return for better performance. Use this to
 - `_expand` (optional): OData expand expression to include related entities
 
-**Usage:**
-```typescript
-await teams.getPrimaryChannel({
-  teamId: "teamId_value"
-});
+```bash
+teams get-primary-channel --teamId "teamId_value"
 ```
 
 ### `add_channel_member`
@@ -454,13 +485,8 @@ Add a member to a channel (Microsoft Graph API compliant).
 - `user_odata_bind` (**required**): OData bind URL for the user. Format: 'https://graph.microsoft.com/v1.0/users('{u
 - `roles` (optional): The role for the user. Must be 'owner' or empty.
 
-**Usage:**
-```typescript
-await teams.addChannelMember({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  user_odata_bind: "user_odata_bind_value"
-});
+```bash
+teams add-channel-member --teamId "teamId_value" --channelId "channelId_value" --user_odata_bind "user_odata_bind_value"
 ```
 
 ### `archive_channel`
@@ -470,12 +496,8 @@ Archive a channel (Microsoft Graph API compliant).
 - `teamId` (**required**): Unique team identifier
 - `channelId` (**required**): Unique channel identifier to archive
 
-**Usage:**
-```typescript
-await teams.archiveChannel({
-  teamId: "teamId_value",
-  channelId: "channelId_value"
-});
+```bash
+teams archive-channel --teamId "teamId_value" --channelId "channelId_value"
 ```
 
 ### `list_channel_messages`
@@ -487,12 +509,8 @@ List messages in a channel. API Endpoint: GET /teams/{team-id}/channels/{channel
 - `_top` (optional): Number of messages to return
 - `_expand` (optional): OData expand parameter to include related entities (e.g., 'replies' to include m
 
-**Usage:**
-```typescript
-await teams.listChannelMessages({
-  teamId: "teamId_value",
-  channelId: "channelId_value"
-});
+```bash
+teams list-channel-messages --teamId "teamId_value" --channelId "channelId_value"
 ```
 
 ### `send_channel_message`
@@ -507,13 +525,8 @@ Send a new chatMessage in the specified channel (Microsoft Graph API compliant).
 - `mentions` (optional): Users mentioned in the message
 - `importance` (optional): Message importance level
 
-**Usage:**
-```typescript
-await teams.sendChannelMessage({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  body: 0
-});
+```bash
+teams send-channel-message --teamId "teamId_value" --channelId "channelId_value" --body 0
 ```
 
 ### `soft_delete_channel_message`
@@ -525,13 +538,8 @@ Delete a single chatMessage or reply in a channel (Microsoft Graph API compliant
 - `messageId` (**required**): Unique message identifier to soft delete
 - `replyId` (optional): Optional reply identifier (for soft deleting a specific reply to a message)
 
-**Usage:**
-```typescript
-await teams.softDeleteChannelMessage({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams soft-delete-channel-message --teamId "teamId_value" --channelId "channelId_value" --messageId "messageId_value"
 ```
 
 ### `undo_soft_delete_channel_message`
@@ -543,13 +551,8 @@ Undo soft deletion of a single chatMessage or reply in a channel (Microsoft Grap
 - `messageId` (**required**): Unique message identifier to restore
 - `replyId` (optional): Optional reply identifier (for restoring a specific reply to a message)
 
-**Usage:**
-```typescript
-await teams.undoSoftDeleteChannelMessage({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams undo-soft-delete-channel-message --teamId "teamId_value" --channelId "channelId_value" --messageId "messageId_value"
 ```
 
 ### `update_channel_message`
@@ -574,13 +577,8 @@ Update a chatMessage in a channel (Microsoft Graph API compliant).
 - `messageHistory` (optional): List of activity history of a message item
 - `policyViolation` (optional): Defines the properties of a policy violation set by a data loss prevention (DLP)
 
-**Usage:**
-```typescript
-await teams.updateChannelMessage({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  messageId: "messageId_value"
-});
+```bash
+teams update-channel-message --teamId "teamId_value" --channelId "channelId_value" --messageId "messageId_value"
 ```
 
 ### `set_channel_message_reaction`
@@ -593,14 +591,8 @@ Set a reaction to a channel message or reply (Microsoft Graph API compliant).
 - `replyId` (optional): Optional reply identifier (for setting reaction on a reply)
 - `reactionType` (**required**): Reaction type as unicode (e.g., '💘', '👍', '❤️', '😂', '😮', '😢', '😡')
 
-**Usage:**
-```typescript
-await teams.setChannelMessageReaction({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  messageId: "messageId_value",
-  reactionType: "reactionType_value"
-});
+```bash
+teams set-channel-message-reaction --teamId "teamId_value" --channelId "channelId_value" --messageId "messageId_value" --reactionType "reactionType_value"
 ```
 
 ### `unset_channel_message_reaction`
@@ -613,14 +605,8 @@ Unset a reaction from a channel message or reply (Microsoft Graph API compliant)
 - `replyId` (optional): Optional reply identifier (for unsetting reaction from a reply)
 - `reactionType` (**required**): Reaction type as unicode (e.g., '💘', '👍', '❤️', '😂', '😮', '😢', '😡')
 
-**Usage:**
-```typescript
-await teams.unsetChannelMessageReaction({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  messageId: "messageId_value",
-  reactionType: "reactionType_value"
-});
+```bash
+teams unset-channel-message-reaction --teamId "teamId_value" --channelId "channelId_value" --messageId "messageId_value" --reactionType "reactionType_value"
 ```
 
 ### `get_files_folder`
@@ -630,12 +616,8 @@ Get the metadata for the location where the files of a channel are stored (Micro
 - `teamId` (**required**): Unique team identifier
 - `channelId` (**required**): Unique channel identifier
 
-**Usage:**
-```typescript
-await teams.getFilesFolder({
-  teamId: "teamId_value",
-  channelId: "channelId_value"
-});
+```bash
+teams get-files-folder --teamId "teamId_value" --channelId "channelId_value"
 ```
 
 ### `list_tabs_in_channel`
@@ -648,12 +630,8 @@ Retrieve the list of tabs in the specified channel within a team (Microsoft Grap
 - `_select` (optional): Comma-separated list of properties to return
 - `_expand` (optional): OData expand expression (e.g., 'teamsApp' to include app details)
 
-**Usage:**
-```typescript
-await teams.listTabsInChannel({
-  teamId: "teamId_value",
-  channelId: "channelId_value"
-});
+```bash
+teams list-tabs-in-channel --teamId "teamId_value" --channelId "channelId_value"
 ```
 
 ### `add_tabs_to_channels`
@@ -666,14 +644,8 @@ Add (pin) a tab to the specified channel within a team (Microsoft Graph API comp
 - `teamsApp_odata_bind` (**required**): OData bind URL for the Teams app to pin as a tab. Format: 'https://graph.microso
 - `configuration` (optional): Container for custom settings applied to a tab (required for configurable tabs)
 
-**Usage:**
-```typescript
-await teams.addTabsToChannels({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  displayName: "displayName_value",
-  teamsApp_odata_bind: "teamsApp_odata_bind_value"
-});
+```bash
+teams add-tabs-to-channels --teamId "teamId_value" --channelId "channelId_value" --displayName "displayName_value" --teamsApp_odata_bind "teamsApp_odata_bind_value"
 ```
 
 ### `provision_channel_email`
@@ -683,12 +655,8 @@ Provision an email address for a channel (Microsoft Graph API compliant).
 - `teamId` (**required**): Unique team identifier
 - `channelId` (**required**): Unique channel identifier for which to provision email
 
-**Usage:**
-```typescript
-await teams.provisionChannelEmail({
-  teamId: "teamId_value",
-  channelId: "channelId_value"
-});
+```bash
+teams provision-channel-email --teamId "teamId_value" --channelId "channelId_value"
 ```
 
 ### `update_channel_tab`
@@ -701,13 +669,8 @@ Update the properties of a tab in a channel (Microsoft Graph API compliant).
 - `displayName` (optional): Updated tab display name (1-128 characters)
 - `configuration` (optional): Updated tab configuration settings
 
-**Usage:**
-```typescript
-await teams.updateChannelTab({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  tabId: "tabId_value"
-});
+```bash
+teams update-channel-tab --teamId "teamId_value" --channelId "channelId_value" --tabId "tabId_value"
 ```
 
 ### `delete_channel_tab`
@@ -718,13 +681,8 @@ Remove (unpin) a tab from a channel (Microsoft Graph API compliant).
 - `channelId` (**required**): Unique channel identifier
 - `tabId` (**required**): Unique tab identifier to delete
 
-**Usage:**
-```typescript
-await teams.deleteChannelTab({
-  teamId: "teamId_value",
-  channelId: "channelId_value",
-  tabId: "tabId_value"
-});
+```bash
+teams delete-channel-tab --teamId "teamId_value" --channelId "channelId_value" --tabId "tabId_value"
 ```
 
 ### `create_team`
@@ -752,11 +710,8 @@ Create a new team following MS Graph API v1.0. Two creation methods: 1) Create t
 - `funSettings` (optional): Fun settings for the team
 - `discoverySettings` (optional): Discovery settings for the team
 
-**Usage:**
-```typescript
-await teams.createTeam({
-  template_odata_bind: "template_odata_bind_value"
-});
+```bash
+teams create-team --template_odata_bind "template_odata_bind_value"
 ```
 
 ### `list_teams`
@@ -769,9 +724,8 @@ List all teams in an organization following Microsoft Graph API v1.0. Supports O
 - `_select` (optional): Comma-separated list of properties to return. By default returns id, displayName
 - `_count` (optional): Include count of total items in the response
 
-**Usage:**
-```typescript
-await teams.listTeams();
+```bash
+teams list-teams
 ```
 
 ### `update_team`
@@ -789,11 +743,8 @@ Update team properties. API Endpoint: PATCH /teams/{team-id}
 - `funSettings` (optional): Updated fun settings for the team
 - `discoverySettings` (optional): Updated discovery settings for the team
 
-**Usage:**
-```typescript
-await teams.updateTeam({
-  teamId: "teamId_value"
-});
+```bash
+teams update-team --teamId "teamId_value"
 ```
 
 ### `delete_team`
@@ -802,11 +753,8 @@ Delete a team (and its associated Microsoft 365 group). API Endpoint: DELETE /gr
 **Parameters:**
 - `teamId` (**required**): Unique team identifier (same as group ID)
 
-**Usage:**
-```typescript
-await teams.deleteTeam({
-  teamId: "teamId_value"
-});
+```bash
+teams delete-team --teamId "teamId_value"
 ```
 
 ### `list_team_members`
@@ -818,11 +766,8 @@ List members of a team following Microsoft Graph API v1.0. This method supports 
 - `_select` (optional): OPTIONAL. Comma-separated list of properties to return. Examples: 'id,roles,disp
 - `_top` (optional): OPTIONAL. Number of items per response (default 50, max 999)
 
-**Usage:**
-```typescript
-await teams.listTeamMembers({
-  teamId: "teamId_value"
-});
+```bash
+teams list-team-members --teamId "teamId_value"
 ```
 
 ### `add_team_member`
@@ -835,12 +780,8 @@ Add a member to a team. API Endpoint: POST /teams/{team-id}/members
 - `user_odata_bind` (**required**): User reference (e.g., 'https://graph.microsoft.com/v1.0/users('user-id')')
 - `visibleHistoryStartDateTime` (optional): Timestamp denoting how far back a conversation's history is shared with the memb
 
-**Usage:**
-```typescript
-await teams.addTeamMember({
-  teamId: "teamId_value",
-  user_odata_bind: "user_odata_bind_value"
-});
+```bash
+teams add-team-member --teamId "teamId_value" --user_odata_bind "user_odata_bind_value"
 ```
 
 ### `add_team_members_in_bulk`
@@ -850,12 +791,8 @@ Add multiple members to a team in bulk. API Endpoint: POST /teams/{team-id}/memb
 - `teamId` (**required**): Unique team identifier
 - `values` (**required**): List of members to add
 
-**Usage:**
-```typescript
-await teams.addTeamMembersInBulk({
-  teamId: "teamId_value",
-  values: []
-});
+```bash
+teams add-team-members-in-bulk --teamId "teamId_value" --values []
 ```
 
 ### `update_team_member`
@@ -866,13 +803,8 @@ Update a team member's roles. API Endpoint: PATCH /teams/{team-id}/members/{memb
 - `membershipId` (**required**): Unique membership identifier
 - `roles` (**required**): Updated member roles in the team
 
-**Usage:**
-```typescript
-await teams.updateTeamMember({
-  teamId: "teamId_value",
-  membershipId: "membershipId_value",
-  roles: []
-});
+```bash
+teams update-team-member --teamId "teamId_value" --membershipId "membershipId_value" --roles []
 ```
 
 ### `remove_team_member`
@@ -882,12 +814,8 @@ Remove a member from a team. API Endpoint: DELETE /teams/{team-id}/members/{memb
 - `teamId` (**required**): Unique team identifier
 - `membershipId` (**required**): Unique membership identifier
 
-**Usage:**
-```typescript
-await teams.removeTeamMember({
-  teamId: "teamId_value",
-  membershipId: "membershipId_value"
-});
+```bash
+teams remove-team-member --teamId "teamId_value" --membershipId "membershipId_value"
 ```
 
 ### `list_installed_apps`
@@ -899,11 +827,8 @@ Retrieve the list of apps installed in the specified team. Supports OData query 
 - `_filter` (optional): Filter results by app external ID (manifest ID). Use format: teamsApp/externalId
 - `_select` (optional): Select specific fields to return. Useful for getting resource-specific permissio
 
-**Usage:**
-```typescript
-await teams.listInstalledApps({
-  teamId: "teamId_value"
-});
+```bash
+teams list-installed-apps --teamId "teamId_value"
 ```
 
 ### `create_teamwork_tag`
@@ -915,12 +840,8 @@ Create a new teamworkTag. API Endpoint: POST /teams/{team_id}/tags
 - `description` (optional): Optional description of the tag
 - `members` (optional): Members assigned to the tag (max 25 members)
 
-**Usage:**
-```typescript
-await teams.createTeamworkTag({
-  team_id: "team_id_value",
-  displayName: "displayName_value"
-});
+```bash
+teams create-teamwork-tag --team_id "team_id_value" --displayName "displayName_value"
 ```
 
 ### `list_teamwork_tags`
@@ -931,11 +852,8 @@ List all teamworkTags. API Endpoint: GET /teams/{team_id}/tags. Supports OData q
 - `_filter` (optional): OData $filter query parameter (e.g., "tagType eq 'standard'")
 - `_top` (optional): OData $top query parameter - number of items to return
 
-**Usage:**
-```typescript
-await teams.listTeamworkTags({
-  team_id: "team_id_value"
-});
+```bash
+teams list-teamwork-tags --team_id "team_id_value"
 ```
 
 ### `update_teamwork_tag`
@@ -948,12 +866,8 @@ Update a teamworkTag. API Endpoint: PATCH /teams/{team_id}/tags/{tag_id}
 - `description` (optional): Updated description of the tag
 - `members` (optional): Updated members list (max 25 members)
 
-**Usage:**
-```typescript
-await teams.updateTeamworkTag({
-  team_id: "team_id_value",
-  tag_id: "tag_id_value"
-});
+```bash
+teams update-teamwork-tag --team_id "team_id_value" --tag_id "tag_id_value"
 ```
 
 ### `create_teamwork_tag_member`
@@ -964,13 +878,8 @@ Create a new teamworkTagMember - add a user to a teamwork tag. API Endpoint: POS
 - `tag_id` (**required**): ID of the teamwork tag to add member to
 - `userId` (**required**): The unique identifier for the member of the team
 
-**Usage:**
-```typescript
-await teams.createTeamworkTagMember({
-  team_id: "team_id_value",
-  tag_id: "tag_id_value",
-  userId: "userId_value"
-});
+```bash
+teams create-teamwork-tag-member --team_id "team_id_value" --tag_id "tag_id_value" --userId "userId_value"
 ```
 
 ### `create_group`
@@ -998,14 +907,8 @@ Create a new group following MS Graph API v1.0. Creates a Microsoft Entra group 
 - `owners_odata_bind` (optional): OPTIONAL. List of owner references in OData format. Format: ['https://graph.micr
 - `members_odata_bind` (optional): OPTIONAL. List of member references in OData format. Format: ['https://graph.mic
 
-**Usage:**
-```typescript
-await teams.createGroup({
-  displayName: "displayName_value",
-  mailEnabled: true,
-  mailNickname: "mailNickname_value",
-  securityEnabled: true
-});
+```bash
+teams create-group --displayName "displayName_value" --mailEnabled true --mailNickname "mailNickname_value" --securityEnabled true
 ```
 
 ### `list_groups`
@@ -1020,9 +923,8 @@ List groups in the organization. Per Microsoft Graph API documentation: Supports
 - `_count` (optional): OPTIONAL. Include count of total matching results in response
 - `_expand` (optional): OPTIONAL. Expand related entities. Open extensions are returned only with _expan
 
-**Usage:**
-```typescript
-await teams.listGroups();
+```bash
+teams list-groups
 ```
 
 ### `update_group`
@@ -1041,11 +943,8 @@ Update group properties. Only updates the properties provided in the request. AP
 - `uniqueName` (optional): OPTIONAL. The unique identifier that can be assigned to a group and used as an a
 - `visibility` (optional): OPTIONAL. Specifies the visibility of a Microsoft 365 group. The possible values
 
-**Usage:**
-```typescript
-await teams.updateGroup({
-  groupId: "groupId_value"
-});
+```bash
+teams update-group --groupId "groupId_value"
 ```
 
 ### `add_group_owner`
@@ -1055,12 +954,8 @@ Add an owner to a group. Returns 204 No Content on success. API Endpoint: POST /
 - `groupId` (**required**): REQUIRED. Unique group identifier
 - `_odata_id` (**required**): REQUIRED. OData reference to the owner user (e.g., 'https://graph.microsoft.com/
 
-**Usage:**
-```typescript
-await teams.addGroupOwner({
-  groupId: "groupId_value",
-  _odata_id: "_odata_id_value"
-});
+```bash
+teams add-group-owner --groupId "groupId_value" --_odata_id "_odata_id_value"
 ```
 
 ### `list_call_records`
@@ -1070,9 +965,8 @@ Get the list of callRecord objects and their properties.
 - `_filter` (optional): Filter query parameter. Supported filters:
 - `_select` (optional): Select specific properties to return.
 
-**Usage:**
-```typescript
-await teams.listCallRecords();
+```bash
+teams list-call-records
 ```
 
 ### `get_call_record`
@@ -1083,11 +977,8 @@ Retrieve the properties and relationships of a callRecord object.
 - `_select` (optional): Select specific properties to return.
 - `_expand` (optional): Expand relationships to include in the response.
 
-**Usage:**
-```typescript
-await teams.getCallRecord({
-  id: "id_value"
-});
+```bash
+teams get-call-record --id "id_value"
 ```
 
 ### `list_call_sessions`
@@ -1098,11 +989,8 @@ Retrieve the list of sessions associated with a callRecord object.
 - `_select` (optional): Optional OData _select parameter to return specific properties (e.g., 'id,startD
 - `_expand` (optional): Optional OData _expand parameter to include segments. Use 'segments' to include 
 
-**Usage:**
-```typescript
-await teams.listCallSessions({
-  id: "id_value"
-});
+```bash
+teams list-call-sessions --id "id_value"
 ```
 
 ### `create_call`
@@ -1120,13 +1008,8 @@ Create a new outgoing peer-to-peer or group call, or join an existing meeting.
 - `subject` (optional): Call subject
 - `tenantId` (optional): Tenant ID
 
-**Usage:**
-```typescript
-await teams.createCall({
-  callbackUri: "callbackUri_value",
-  requestedModalities: [],
-  mediaConfig: 0
-});
+```bash
+teams create-call --callbackUri "callbackUri_value" --requestedModalities [] --mediaConfig 0
 ```
 
 ### `create_audio_routing_group`
@@ -1138,14 +1021,8 @@ Create a new audio routing group for a call.
 - `sources` (**required**): Source participant IDs (must have exactly 1 participant - the authenticated bot/
 - `receivers` (**required**): Receiver participant IDs. For oneToOne mode: exactly 1 receiver. For multicast m
 
-**Usage:**
-```typescript
-await teams.createAudioRoutingGroup({
-  call_id: "call_id_value",
-  routingMode: "routingMode_value",
-  sources: [],
-  receivers: []
-});
+```bash
+teams create-audio-routing-group --call_id "call_id_value" --routingMode "routingMode_value" --sources [] --receivers []
 ```
 
 ### `set_user_status_message`
@@ -1155,12 +1032,8 @@ Set a user's status message.
 - `user_id` (**required**): User identifier - accepts either user ID (UUID) or userPrincipalName (e.g., 'ali
 - `statusMessage` (**required**): Status message object containing message details
 
-**Usage:**
-```typescript
-await teams.setUserStatusMessage({
-  user_id: "user_id_value",
-  statusMessage: 0
-});
+```bash
+teams set-user-status-message --user_id "user_id_value" --statusMessage 0
 ```
 
 ### `create_virtual_event_webinar`
@@ -1175,15 +1048,8 @@ Create a new virtualEventWebinar object in draft mode.
 - `coOrganizers` (optional): Coorganizers of the webinar (optional). Each coorganizer must exist in the syste
 - `settings` (optional): Webinar settings (optional)
 
-**Usage:**
-```typescript
-await teams.createVirtualEventWebinar({
-  displayName: "displayName_value",
-  description: 0,
-  startDateTime: 0,
-  endDateTime: 0,
-  audience: "audience_value"
-});
+```bash
+teams create-virtual-event-webinar --displayName "displayName_value" --description 0 --startDateTime 0 --endDateTime 0 --audience "audience_value"
 ```
 
 ### `get_virtual_event_webinar`
@@ -1192,11 +1058,8 @@ Get a virtualEventWebinar object by ID.
 **Parameters:**
 - `webinar_id` (**required**): The unique identifier of the webinar (required, format: guid@guid). Example: '88
 
-**Usage:**
-```typescript
-await teams.getVirtualEventWebinar({
-  webinar_id: "webinar_id_value"
-});
+```bash
+teams get-virtual-event-webinar --webinar_id "webinar_id_value"
 ```
 
 ### `list_virtual_event_webinars`
@@ -1205,9 +1068,8 @@ Get the list of all virtualEventWebinar objects created in a tenant.
 **Parameters:**
 - `_count` (optional): Include total count in response (@odata.count). Maps to $count query parameter. 
 
-**Usage:**
-```typescript
-await teams.listVirtualEventWebinars();
+```bash
+teams list-virtual-event-webinars
 ```
 
 ### `publish_virtual_event_webinar`
@@ -1216,11 +1078,8 @@ Publish a virtualEventWebinar to make it visible to its audience.
 **Parameters:**
 - `webinar_id` (**required**): Unique identifier of the webinar (format: guid@guid). Example: 'a57082a9-7629-4f
 
-**Usage:**
-```typescript
-await teams.publishVirtualEventWebinar({
-  webinar_id: "webinar_id_value"
-});
+```bash
+teams publish-virtual-event-webinar --webinar_id "webinar_id_value"
 ```
 
 ### `cancel_virtual_event_webinar`
@@ -1229,11 +1088,8 @@ Cancel a virtualEventWebinar. A canceled webinar has its status set to canceled 
 **Parameters:**
 - `webinar_id` (**required**): Unique identifier of the webinar (format: guid@guid). Example: 'a57082a9-7629-4f
 
-**Usage:**
-```typescript
-await teams.cancelVirtualEventWebinar({
-  webinar_id: "webinar_id_value"
-});
+```bash
+teams cancel-virtual-event-webinar --webinar_id "webinar_id_value"
 ```
 
 ### `create_virtual_event_townhall`
@@ -1250,15 +1106,8 @@ Create a new virtualEventTownhall object in draft mode.
 - `coOrganizers` (optional): Coorganizers of the townhall (optional). Provide only user IDs - displayName and
 - `settings` (optional): Townhall settings (optional)
 
-**Usage:**
-```typescript
-await teams.createVirtualEventTownhall({
-  displayName: "displayName_value",
-  description: 0,
-  startDateTime: 0,
-  endDateTime: 0,
-  audience: "audience_value"
-});
+```bash
+teams create-virtual-event-townhall --displayName "displayName_value" --description 0 --startDateTime 0 --endDateTime 0 --audience "audience_value"
 ```
 
 ### `list_virtual_event_townhalls`
@@ -1267,9 +1116,8 @@ Get the list of all virtualEventTownhall objects created in a tenant.
 **Parameters:**
 - `_count` (optional): Include total count in response (@odata.count). Maps to $count query parameter. 
 
-**Usage:**
-```typescript
-await teams.listVirtualEventTownhalls();
+```bash
+teams list-virtual-event-townhalls
 ```
 
 ### `cancel_virtual_event_townhall`
@@ -1278,11 +1126,8 @@ Cancel a virtualEventTownhall. A canceled town hall has its status set to cancel
 **Parameters:**
 - `townhall_id` (**required**): Unique identifier of the townhall (format: guid@guid). Example: 'bce9a3ca-a310-4
 
-**Usage:**
-```typescript
-await teams.cancelVirtualEventTownhall({
-  townhall_id: "townhall_id_value"
-});
+```bash
+teams cancel-virtual-event-townhall --townhall_id "townhall_id_value"
 ```
 
 ### `list_teams_apps`
@@ -1293,7 +1138,6 @@ List Teams apps from the Microsoft Teams app catalog.
 - `_select` (optional): Comma-separated list of properties to return. Example: "id,displayName,distribut
 - `_expand` (optional): Comma-separated list of relationships to expand. Example: "appDefinitions"
 
-**Usage:**
-```typescript
-await teams.listTeamsApps();
+```bash
+teams list-teams-apps
 ```
