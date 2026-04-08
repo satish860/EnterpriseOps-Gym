@@ -88,16 +88,20 @@ teams add-tabs-to-channels \
   --displayName "Planner" \
   --teamsApp_odata_bind "https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.planner"
 ```
+- **IMPORTANT:** The URL format uses parentheses and quotes around the ID, NOT a forward slash:
+  - ✅ Correct: `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('com.microsoft.teamspace.tab.planner')`
+  - ❌ Wrong:   `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.planner`
+
 - **Known app IDs in the DB:**
 
-| App | ID | teamsApp_odata_bind |
-|---|---|---|
-| Planner | `com.microsoft.teamspace.tab.planner` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.planner` |
-| SharePoint | `2a527703-1f6f-4559-a332-d8a7d288cd88` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/2a527703-1f6f-4559-a332-d8a7d288cd88` |
-| OneNote | `0d820ecd-def2-4297-adad-78056cde7c79` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/0d820ecd-def2-4297-adad-78056cde7c79` |
-| Power BI | `com.microsoft.teamspace.tab.powerbi` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.powerbi` |
-| Website | `com.microsoft.teamspace.tab.web` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.microsoft.teamspace.tab.web` |
-| Trello | `com.trello.tab` | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/com.trello.tab` |
+| App | teamsApp_odata_bind |
+|---|---|
+| Planner | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('com.microsoft.teamspace.tab.planner')` |
+| SharePoint | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('2a527703-1f6f-4559-a332-d8a7d288cd88')` |
+| OneNote | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('0d820ecd-def2-4297-adad-78056cde7c79')` |
+| Power BI | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('com.microsoft.teamspace.tab.powerbi')` |
+| Website | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('com.microsoft.teamspace.tab.web')` |
+| Trello | `https://graph.microsoft.com/v1.0/appCatalogs/teamsApps('com.trello.tab')` |
 
 ---
 

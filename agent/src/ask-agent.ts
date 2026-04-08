@@ -19,6 +19,7 @@ import {
   DefaultResourceLoader,
   ModelRegistry,
   SessionManager,
+  SettingsManager,
 } from "@mariozechner/pi-coding-agent";
 import type { Task } from "./task-runner.js";
 
@@ -26,6 +27,7 @@ import type { Task } from "./task-runner.js";
 
 const README_PATH    = path.resolve(import.meta.dirname, "../servers/teams/README.md").replace(/\\/g, "/");
 const LEARNINGS_PATH = path.resolve(import.meta.dirname, "../LEARNINGS.md").replace(/\\/g, "/");
+const SESSIONS_DIR   = path.resolve(import.meta.dirname, "../../sessions");
 
 function loadLearnings(): string {
   if (fs.existsSync(LEARNINGS_PATH)) {
@@ -183,7 +185,7 @@ function subscribeOutput(session: any) {
 
 // ── 3. Create a session with task context appended ──────────────────────────
 
-async function createSession(appendPrompt?: string) {
+async function createSession(appendPrompt?: string, taskId?: string) {
   const authStorage = AuthStorage.create();
   const modelRegistry = ModelRegistry.create(authStorage);
 
@@ -196,9 +198,15 @@ async function createSession(appendPrompt?: string) {
   });
   await loader.reload();
 
+  // Save sessions to disk so we can review conversation logs
+  fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+  const sessionManager = taskId
+    ? SessionManager.open(path.join(SESSIONS_DIR, `${taskId}.jsonl`))
+    : SessionManager.create(SESSIONS_DIR);
+
   const { session } = await createAgentSession({
     resourceLoader: loader,
-    sessionManager: SessionManager.inMemory(),
+    sessionManager,
     authStorage,
     modelRegistry,
   });
@@ -215,7 +223,7 @@ export async function runTask(task: Task, dbId: string): Promise<void> {
   process.env.TEAMS_TOKEN = task.access_token;
 
   const appendPrompt = buildTaskAppend(task, dbId);
-  const session = await createSession(appendPrompt);
+  const session = await createSession(appendPrompt, task.task_id);
 
   console.log(`\n❓ Task: ${task.user_prompt}\n`);
   await session.prompt(task.user_prompt);

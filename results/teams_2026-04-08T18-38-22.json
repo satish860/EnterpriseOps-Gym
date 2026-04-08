@@ -2,12 +2,12 @@
   "domain": "teams",
   "range": "2-4",
   "timestamp": "2026-04-08T18-38-22",
-  "tasks_run": 1,
-  "tasks_passed": 1,
+  "tasks_run": 3,
+  "tasks_passed": 3,
   "tasks_total": 3,
-  "verifiers_passed": 11,
+  "verifiers_passed": 21,
   "verifiers_failed": 0,
-  "verifiers_total": 11,
+  "verifiers_total": 21,
   "pass_rate": "100.0%",
   "task_pass_rate": "100.0%",
   "results": [
@@ -88,6 +88,90 @@
         }
       ],
       "duration_s": 178.204
+    },
+    {
+      "index": 3,
+      "task_id": "task_20251125_110309_032_464ee3e0_33f12828",
+      "domain": "teams",
+      "user_prompt": "Please set up a webinar for me (james.wilson@techcorp.com) on October 27, 2025, from 10:00 AM to 2:00 PM UTC. Name it 'Workplace communication' and include a short description explaining that it's about improving effective communication in the workplace. Make it open to everyone. Add the other owner of the TechCorp Solutions Team, Alice Johnson, as a co-organizer. Please publish the webinar after creation. Once created, send me a confirmation by posting a plaintext message in the General channel of the TechCorp Solutions Team with the webinar details including the name, date, time, and co-organizer information.",
+      "passed": 4,
+      "failed": 0,
+      "total": 4,
+      "verifiers": [
+        {
+          "name": "Check Webinar Created with Correct Details",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "Check Alice Johnson Added as Co-Organizer",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "Check Webinar is published ",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "Check Confirmation Message Posted in General Channel",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        }
+      ],
+      "duration_s": 108.209
+    },
+    {
+      "index": 4,
+      "task_id": "task_20251125_113335_636_7ebc1127_a4ebffe8",
+      "domain": "teams",
+      "user_prompt": "Several people across TechCorp reported missed or delayed Teams notifications between October 23 and October 31, 2025, mainly from the Engineering and IT groups. In the team named TechCorp Solutions Team, please create a private channel called Notification Reliability Review - Oct 23-31, 2025, with a short description explaining that the channel is for reviewing notification issues from that period and tracking follow-up work. Make me (James) and Alice the owners of this channel, and add Bob, Carol, and Dave as members. Once the channel is ready, post a welcome message greeting everyone by their full names, stating that the goal is to investigate missed and delayed notifications between October 23 and October 31, 2025, and asking each person to reply in the same thread with examples or short summaries of issues they have seen. After that, create a townhall named Notification Reliability Deep Dive - Oct 23-31, 2025. Schedule it for November 28, 2025, at 10:00 AM (UTC) and make it last one hour. Make it available only to people in TechCorp. The townhall description should briefly summarize that the meeting will focus on reviewing the missed or delayed notifications from October 23 to October 31 and outlining next steps for improving reliability. Set as co-organizers the members of this private channel whose job titles are Senior Developer, Security Architect, Integration Services Manager, or Senior Data Scientist, and add the remaining channel members and owner (not me) as regular attendees.",
+      "passed": 6,
+      "failed": 0,
+      "total": 6,
+      "verifiers": [
+        {
+          "name": "verify_channel_created",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "verify_members_added",
+          "passed": true,
+          "expected": 5,
+          "actual": 5
+        },
+        {
+          "name": "verify_welcome_message_posted",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "verify_townhall_created",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "verify_townhall_coorganizers",
+          "passed": true,
+          "expected": 1,
+          "actual": 1
+        },
+        {
+          "name": "verify_townhall_attendees",
+          "passed": true,
+          "expected": 3,
+          "actual": 3
+        }
+      ],
+      "duration_s": 173.559
     }
   ]
 }
