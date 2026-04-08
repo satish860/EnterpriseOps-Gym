@@ -221,7 +221,10 @@ async function main() {
   await verifyTask(task, dbId);
 }
 
-main().catch((err) => {
-  console.error(`Error: ${err.message}`);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]?.includes("task-runner");
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error(`Error: ${err.message}`);
+    process.exit(1);
+  });
+}
