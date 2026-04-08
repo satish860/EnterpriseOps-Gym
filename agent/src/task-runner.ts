@@ -6,8 +6,15 @@
  *   npx tsx src/task-runner.ts --domain teams --task-id task_20251121_102744_757_7ebc1127_dadb0c94
  */
 
+import * as fs from "fs";
+import * as path from "path";
+import { seedDatabase } from "./client.js";
+
 const HF_DATASET = "ServiceNow-AI/EnterpriseOps-Gym";
 const HF_CONFIG  = "oracle";
+
+// Root of the repo — DB files live relative to here
+const REPO_ROOT = path.resolve(import.meta.dirname, "../..");
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,6 +97,27 @@ async function fetchTask(domain: string, index: number): Promise<Task> {
   };
 }
 
+// ── Setup task: seed DB, return DB ID ────────────────────────────────
+
+export async function setupTask(task: Task): Promise<string> {
+  const sqlFile = path.resolve(REPO_ROOT, task.seed_database_file);
+
+  if (!fs.existsSync(sqlFile)) {
+    throw new Error(`Seed file not found: ${sqlFile}`);
+  }
+
+  const sqlContent = fs.readFileSync(sqlFile, "utf-8");
+  const timestamp  = Date.now();
+  const suffix     = Math.random().toString(36).slice(2, 11);
+  const databaseId = `db_${timestamp}_${suffix}`;
+
+  console.log(`Seeding DB for task ${task.task_id}...`);
+  await seedDatabase(databaseId, sqlContent);
+  console.log(`DB ready: ${databaseId}`);
+
+  return databaseId;
+}
+
 // ── Display task ─────────────────────────────────────────────────────────────
 
 function displayTask(task: Task) {
@@ -133,6 +161,10 @@ async function main() {
   console.log(`Fetching task ${index} from ${domain}...`);
   const task = await fetchTask(domain, index);
   displayTask(task);
+
+  const dbId = await setupTask(task);
+  console.log(`\nTEAMS_DB=${dbId}`);
+  console.log(`TEAMS_TOKEN=${task.access_token}`);
 }
 
 main().catch((err) => {
