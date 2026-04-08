@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.log
+.env
+.DS_Store
+
+# Benchmark data (large, not ours)
+benchmark/
+gym_dbs/
+gym_dbs.zip
+conf/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

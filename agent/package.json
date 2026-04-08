@@ -1,0 +1,26 @@
+{
+  "name": "enterpriseops-agent",
+  "version": "0.1.0",
+  "description": "Pi coding agent for EnterpriseOps-Gym — 3 tools vs 512 MCP",
+  "type": "module",
+  "scripts": {
+    "generate:teams": "npx ts-node --esm src/generate-tools.ts --domain teams    --port 8002 --internalPort 8005",
+    "generate:csm": "npx ts-node --esm src/generate-tools.ts --domain csm      --port 8001 --internalPort 8001",
+    "generate:email": "npx ts-node --esm src/generate-tools.ts --domain email    --port 8004 --internalPort 8004",
+    "generate:itsm": "npx ts-node --esm src/generate-tools.ts --domain itsm     --port 8006 --internalPort 8006",
+    "generate:calendar": "npx ts-node --esm src/generate-tools.ts --domain calendar --port 8003 --internalPort 8003",
+    "generate:hr": "npx ts-node --esm src/generate-tools.ts --domain hr       --port 8008 --internalPort 8008",
+    "generate:drive": "npx ts-node --esm src/generate-tools.ts --domain drive    --port 8009 --internalPort 8009",
+    "generate:all": "npm run generate:teams && npm run generate:csm && npm run generate:email && npm run generate:itsm && npm run generate:calendar && npm run generate:hr && npm run generate:drive",
+    "ask": "npx tsx src/ask-agent.ts"
+  },
+  "dependencies": {
+    "@mariozechner/pi-coding-agent": "^0.65.2",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.5.0"
+  }
+}
