@@ -6,6 +6,7 @@
  *   Task execution:   imported by task-runner.ts via runTask()
  */
 
+import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
 
@@ -23,7 +24,15 @@ import type { Task } from "./task-runner.js";
 
 // ── 1. Build the append prompt for a task ───────────────────────────────────
 
-const README_PATH = path.resolve(import.meta.dirname, "../servers/teams/README.md").replace(/\\/g, "/");
+const README_PATH    = path.resolve(import.meta.dirname, "../servers/teams/README.md").replace(/\\/g, "/");
+const LEARNINGS_PATH = path.resolve(import.meta.dirname, "../LEARNINGS.md").replace(/\\/g, "/");
+
+function loadLearnings(): string {
+  if (fs.existsSync(LEARNINGS_PATH)) {
+    return fs.readFileSync(LEARNINGS_PATH, "utf-8");
+  }
+  return "";
+}
 
 function buildTaskAppend(task: Task, dbId: string): string {
   return `
@@ -97,6 +106,8 @@ teams delete-user --userPrincipalName <upn>
 ## Known Server Bugs
 
 - **\`create_virtual_event_townhall\`** — this tool always fails with a server-side error in the Docker image. It is a known bug that cannot be fixed. If a task requires creating a townhall, do your best with all other steps, then mark the townhall creation as blocked due to a known server bug and complete the rest of the task.
+
+${loadLearnings()}
 `;
 }
 
