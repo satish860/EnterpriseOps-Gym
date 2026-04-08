@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface AddTeamMemberInput {
+  [key: string]: unknown;
   /** Unique team identifier */
   teamId: string;
   /** OData type identifier */

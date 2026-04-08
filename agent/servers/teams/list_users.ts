@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListUsersInput {
+  [key: string]: unknown;
   /** Number of items to return (1-999) */
   _top?: number;
   /** Number of items to skip for pagination */

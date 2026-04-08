@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface SetChatMessageReactionInput {
+  [key: string]: unknown;
   /** Unique chat identifier */
   chatId: string;
   /** Unique message identifier to react to */

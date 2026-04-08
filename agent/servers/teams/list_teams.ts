@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListTeamsInput {
+  [key: string]: unknown;
   /** Number of items to return (max 1000) */
   _top?: number;
   /** Pagination token for retrieving the next page of results */

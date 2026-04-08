@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface AddTabToChatInput {
+  [key: string]: unknown;
   /** Unique chat identifier where the tab will be added */
   chatId: string;
   /** Name of the tab */

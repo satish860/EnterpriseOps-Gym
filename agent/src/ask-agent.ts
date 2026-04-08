@@ -65,6 +65,38 @@ grep -A 20 "^### \\\`send_chat_message\\\`" ${README_PATH}
 - When creating chats, the members array needs proper odata format
 - If a command errors, read the error message carefully — it tells you what's wrong
 - Complete the task fully, then stop — do not ask for confirmation
+
+## Dependency Rules (must follow)
+
+**Channel IDs are never static — always look them up:**
+\`\`\`bash
+# Wrong — never assume channel IDs
+teams send-channel-message --channelId "channel_general" ...
+
+# Right — resolve first
+teams list-channels --teamId <teamId>   # get real channelId from response
+teams send-channel-message --channelId <real_id> ...
+\`\`\`
+
+**Creating a user requires forceChangePasswordNextSignIn in passwordProfile:**
+\`\`\`bash
+teams create-user --passwordProfile '{"password":"Test1234!","forceChangePasswordNextSignIn":false}' ...
+\`\`\`
+
+**Creating a team requires at least one owner in members:**
+\`\`\`bash
+teams create-team --members '[{"_odata_type":"#microsoft.graph.aadUserConversationMember","roles":["owner"],"user_odata_bind":"https://graph.microsoft.com/v1.0/users(\'<userId>\')"}]' ...
+\`\`\`
+
+**Always verify an entity exists before deleting it — use get first:**
+\`\`\`bash
+teams get-user --userPrincipalName <upn>   # confirm exists first
+teams delete-user --userPrincipalName <upn>
+\`\`\`
+
+## Known Server Bugs
+
+- **\`create_virtual_event_townhall\`** — this tool always fails with a server-side error in the Docker image. It is a known bug that cannot be fixed. If a task requires creating a townhall, do your best with all other steps, then mark the townhall creation as blocked due to a known server bug and complete the rest of the task.
 `;
 }
 

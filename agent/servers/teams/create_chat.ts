@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateChatInput {
+  [key: string]: unknown;
   /** Type of chat to create: 'oneOnOne' or 'group' */
   chatType: "oneOnOne" | "group";
   /** Chat topic/title. Optional for oneOnOne (must be null), required for group chats. Maximum 255 charac */

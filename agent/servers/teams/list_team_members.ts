@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListTeamMembersInput {
+  [key: string]: unknown;
   /** REQUIRED. Unique team identifier */
   teamId: string;
   /** OPTIONAL. OData filter expression to filter team members. Examples: "(microsoft.graph.aadUserConvers */

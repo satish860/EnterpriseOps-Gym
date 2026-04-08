@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListCallSessionsInput {
+  [key: string]: unknown;
   /** The unique identifier of the call record */
   id: string;
   /** Optional OData _select parameter to return specific properties (e.g., 'id,startDateTime,endDateTime, */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListAllChannelsInput {
+  [key: string]: unknown;
   /** Unique team identifier (use team_techcorp_001 or team_globalex_002 for sample data) */
   teamId: string;
   /** OData filter expression for membershipType filtering */

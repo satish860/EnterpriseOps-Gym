@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListTeamsAppsInput {
+  [key: string]: unknown;
   /** OData filter to apply. Examples: "distributionMethod eq 'organization'", "id eq 'b1c5353a-7aca-41b3- */
   _filter?: string;
   /** Comma-separated list of properties to return. Example: "id,displayName,distributionMethod" */

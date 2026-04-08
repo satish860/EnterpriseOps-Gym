@@ -141,14 +141,16 @@ export async function verifyTask(
       const actual = row ? Object.values(row)[0] : undefined;
       const expected = v.validation_config.expected_value;
 
+      const a = actual as number;
+      const e = expected as number;
       let ok = false;
       switch (v.validation_config.comparison_type) {
-        case "equals":  ok = actual == expected; break;
-        case "gt":      ok = actual >  expected; break;
-        case "gte":     ok = actual >= expected; break;
-        case "lt":      ok = actual <  expected; break;
-        case "lte":     ok = actual <= expected; break;
-        default:        ok = actual == expected;
+        case "equals":  ok = a == e; break;
+        case "gt":      ok = a >  e; break;
+        case "gte":     ok = a >= e; break;
+        case "lt":      ok = a <  e; break;
+        case "lte":     ok = a <= e; break;
+        default:        ok = a == e;
       }
 
       const icon = ok ? "✅" : "❌";

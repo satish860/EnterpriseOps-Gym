@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface SendChatMessageInput {
+  [key: string]: unknown;
   /** Unique chat identifier */
   chatId: string;
   /** Message body content (required). Plaintext/HTML representation of the content of the chat message. R */

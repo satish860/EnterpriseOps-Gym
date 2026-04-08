@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface GetCallRecordInput {
+  [key: string]: unknown;
   /** The unique identifier of the call record to retrieve */
   id: string;
   /** Select specific properties to return. */

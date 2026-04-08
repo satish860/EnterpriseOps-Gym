@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CancelVirtualEventTownhallInput {
+  [key: string]: unknown;
   /** Unique identifier of the townhall (format: guid@guid). Example: 'bce9a3ca-a310-48fa-baf3-1cedcd04bb3 */
   townhall_id: string;
 }

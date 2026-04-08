@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface SetUserStatusMessageInput {
+  [key: string]: unknown;
   /** User identifier - accepts either user ID (UUID) or userPrincipalName (e.g., 'alice_manager') */
   user_id: string;
   /** Status message object containing message details */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface UpdateUserInput {
+  [key: string]: unknown;
   /** User identifier - accepts either user ID (UUID) or userPrincipalName (e.g., 'alice_manager' or 'alic */
   userId?: string;
   /** User principal name in email format (e.g., 'alice.manager@techcorp.com'). Can be provided along with */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListInstalledAppsInput {
+  [key: string]: unknown;
   /** Unique team identifier */
   teamId: string;
   /** Expand related entities. Use 'teamsAppDefinition' to get app version details, 'teamsApp' to get app  */

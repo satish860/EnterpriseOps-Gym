@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListChannelsInput {
+  [key: string]: unknown;
   /** Unique team identifier (must be a team where the user is a member) */
   teamId: string;
   /** OData filter expression. Examples: 'membershipType eq \'private\'', 'membershipType eq \'shared\'',  */

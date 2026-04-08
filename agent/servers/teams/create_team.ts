@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateTeamInput {
+  [key: string]: unknown;
   /** REQUIRED. Template reference (e.g., 'https://graph.microsoft.com/v1.0/teamsTemplates('standard')' or */
   template_odata_bind: string;
   /** OPTIONAL. Group reference for creating team from existing group (e.g., 'https://graph.microsoft.com/ */

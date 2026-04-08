@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListCallRecordsInput {
+  [key: string]: unknown;
   /** Filter query parameter. Supported filters: */
   _filter?: string;
   /** Select specific properties to return. */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListTeamworkTagsInput {
+  [key: string]: unknown;
   /** ID of the team to list tags from */
   team_id: string;
   /** OData $filter query parameter (e.g., "tagType eq 'standard'") */

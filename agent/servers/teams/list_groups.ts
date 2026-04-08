@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListGroupsInput {
+  [key: string]: unknown;
   /** OPTIONAL. Number of items per response (max 999, default 100) */
   _top?: number;
   /** OPTIONAL. OData filter expression. Examples: "displayName eq 'Marketing'", "securityEnabled eq true" */

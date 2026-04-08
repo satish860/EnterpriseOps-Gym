@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface UpdateChatInput {
+  [key: string]: unknown;
   /** Unique chat identifier */
   chatId: string;
   /** Chat topic/title to update */

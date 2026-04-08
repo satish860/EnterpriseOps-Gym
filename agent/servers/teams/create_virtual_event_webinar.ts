@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateVirtualEventWebinarInput {
+  [key: string]: unknown;
   /** The display name of the webinar (required, 1-500 characters) */
   displayName: string;
   /** Description of the webinar (required) */

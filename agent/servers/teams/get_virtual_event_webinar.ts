@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface GetVirtualEventWebinarInput {
+  [key: string]: unknown;
   /** The unique identifier of the webinar (required, format: guid@guid). Example: '88b245ac-b0b2-f1aa-e34 */
   webinar_id: string;
 }

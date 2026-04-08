@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateUserInput {
+  [key: string]: unknown;
   /** User principal name in email format (e.g., john.doe@contoso.com) */
   userPrincipalName: string;
   /** Display name of the user */

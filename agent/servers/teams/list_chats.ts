@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListChatsInput {
+  [key: string]: unknown;
   /** Expand related entities. Currently supports 'members' and 'lastMessagePreview' properties. Example:  */
   _expand?: string;
   /** Controls the number of items per response. Maximum allowed $top value is 50 per Microsoft Graph API  */

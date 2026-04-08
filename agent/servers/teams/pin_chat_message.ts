@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface PinChatMessageInput {
+  [key: string]: unknown;
   /** Unique chat identifier */
   chatId: string;
   /** The unique identifier of the message to pin */

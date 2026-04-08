@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface UpdateChannelTabInput {
+  [key: string]: unknown;
   /** Unique team identifier */
   teamId: string;
   /** Unique channel identifier */

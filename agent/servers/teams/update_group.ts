@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface UpdateGroupInput {
+  [key: string]: unknown;
   /** REQUIRED. Unique group identifier */
   groupId: string;
   /** OPTIONAL. Default is false. Indicates whether people external to the organization can send messages  */

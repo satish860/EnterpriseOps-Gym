@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface AddTeamMembersInBulkInput {
+  [key: string]: unknown;
   /** Unique team identifier */
   teamId: string;
   /** List of members to add */

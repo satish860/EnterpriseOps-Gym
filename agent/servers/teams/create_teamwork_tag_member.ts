@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateTeamworkTagMemberInput {
+  [key: string]: unknown;
   /** ID of the team containing the tag */
   team_id: string;
   /** ID of the teamwork tag to add member to */

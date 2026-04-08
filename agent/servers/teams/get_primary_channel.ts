@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface GetPrimaryChannelInput {
+  [key: string]: unknown;
   /** Unique team identifier (must be a team where the user is a member or user has admin permissions) */
   teamId: string;
   /** OData filter expression. Examples: 'membershipType eq \'standard\'', 'membershipType eq \'private\'' */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateGroupInput {
+  [key: string]: unknown;
   /** REQUIRED. The name to display in the address book for the group. Maximum length: 256 characters. Req */
   displayName: string;
   /** REQUIRED. Set to true for mail-enabled groups. Required. */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface AddTabsToChannelsInput {
+  [key: string]: unknown;
   /** Unique team identifier where the tab will be added */
   teamId: string;
   /** Unique channel identifier where the tab will be pinned */

@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface AddGroupOwnerInput {
+  [key: string]: unknown;
   /** REQUIRED. Unique group identifier */
   groupId: string;
   /** REQUIRED. OData reference to the owner user (e.g., 'https://graph.microsoft.com/v1.0/users/{user-id} */

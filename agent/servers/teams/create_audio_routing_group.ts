@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateAudioRoutingGroupInput {
+  [key: string]: unknown;
   /** Parent call ID (required) */
   call_id: string;
   /** Routing mode: oneToOne (immutable) or multicast (updatable receivers) */

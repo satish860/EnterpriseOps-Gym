@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListChatMessagesInput {
+  [key: string]: unknown;
   /** Unique chat identifier */
   chatId: string;
   /** User identifier (user ID or user principal name). REQUIRED for application permissions to specify wh */

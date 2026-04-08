@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface UpdateTeamInput {
+  [key: string]: unknown;
   /** Unique team identifier */
   teamId: string;
   /** Updated team display name */

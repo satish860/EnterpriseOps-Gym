@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface DeleteTeamInput {
+  [key: string]: unknown;
   /** Unique team identifier (same as group ID) */
   teamId: string;
 }

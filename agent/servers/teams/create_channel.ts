@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateChannelInput {
+  [key: string]: unknown;
   /** Unique team identifier where the channel will be created */
   teamId: string;
   /** Channel display name */

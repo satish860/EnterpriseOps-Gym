@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateCallInput {
+  [key: string]: unknown;
   /** HTTPS callback URL for notifications (required) */
   callbackUri: string;
   /** Source participant info (optional, for PSTN calls with applicationInstance) */

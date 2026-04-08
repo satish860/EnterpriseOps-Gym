@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface CreateVirtualEventTownhallInput {
+  [key: string]: unknown;
   /** The display name of the townhall (required, 1-500 characters) */
   displayName: string;
   /** Description of the townhall (required) */

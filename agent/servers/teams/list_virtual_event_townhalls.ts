@@ -7,6 +7,7 @@
 import { callTool } from "../../src/client.js";
 
 export interface ListVirtualEventTownhallsInput {
+  [key: string]: unknown;
   /** Include total count in response (@odata.count). Maps to $count query parameter. Set to true to inclu */
   _count?: boolean;
 }
