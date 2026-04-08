@@ -12,7 +12,8 @@
     "generate:hr": "npx ts-node --esm src/generate-tools.ts --domain hr       --port 8008 --internalPort 8008",
     "generate:drive": "npx ts-node --esm src/generate-tools.ts --domain drive    --port 8009 --internalPort 8009",
     "generate:all": "npm run generate:teams && npm run generate:csm && npm run generate:email && npm run generate:itsm && npm run generate:calendar && npm run generate:hr && npm run generate:drive",
-    "ask": "npx tsx src/ask-agent.ts"
+    "ask": "npx tsx src/ask-agent.ts",
+    "teams": "npx tsx src/teams-cli.ts"
   },
   "dependencies": {
     "@mariozechner/pi-coding-agent": "^0.65.2",
