@@ -171,48 +171,87 @@ Create `conf/llm/claude-opus.json`:
 
 ---
 
+## Current Focus: Teams Domain (61 tasks, 70 MCP tools)
+
+We're starting with Teams because it's the simplest domain with the fewest tasks. Once we nail it, we scale to the other 7 domains.
+
+---
+
 ## Build Plan
 
-### Phase 0: Recon (CURRENT — Do This First)
+### Phase 0: Recon ✅ DONE
 
-Understand what's behind the MCP servers before writing any agent code.
+What we learned:
 
-| Task | What | How |
+| Finding | Detail |
+|---|---|
+| MCP protocol | JSON-RPC via `POST /mcp` with `x-database-id` header |
+| DB is SQLite | Each MCP server uses isolated SQLite DBs, not PostgreSQL |
+| Seed endpoint | `POST /api/seed-database` with `{database_id, sql_content}` |
+| DB per task | Each task run gets a fresh DB seeded from a `.sql` snapshot |
+| DB reuse | 61 teams tasks share only 13 DB snapshots (multiple tasks per DB) |
+| No auth needed | `x-database-id` header is the only requirement, no tokens |
+| Tool listing | `POST /mcp` with `{method: "tools/list"}` returns all 70 tools |
+| 70 Teams tools | Auto-generated wrappers in `agent/servers/teams/` |
+
+### Phase 1: Teams CLI + Infrastructure (CURRENT)
+
+Three pieces to build:
+
+| Component | File | What it does |
 |---|---|---|
-| 0.1 | Inspect MCP server Docker images | `docker exec` into a running container, look at code/config |
-| 0.2 | Map the PostgreSQL schema | Connect to DB, dump all tables/columns/FKs per domain |
-| 0.3 | List all MCP tools per domain | Call each server's tool listing endpoint |
-| 0.4 | Understand one task end-to-end | Pick simplest domain (teams, 61 tasks), read task, trace what the MCP agent would do, understand what the SQL verifier checks |
-| 0.5 | Test direct SQL approach | Manually solve one task via SQL, run verifier, see if it passes |
+| **HTTP client** | `src/client.ts` | `callTool(domain, tool, args)` → JSON-RPC to MCP server. Reads `$TEAMS_DB` for the `x-database-id` header. |
+| **Teams CLI** | `src/teams-cli.ts` | Single CLI binary. `teams list-users --top 5` → calls `callTool("teams", "list_users", {_top:5})`. Agent uses this via bash. |
+| **Task runner** | `src/task-runner.ts` | Per-task orchestrator: (1) read task config, (2) seed DB, (3) set `$TEAMS_DB`, (4) launch Pi agent with the question, (5) run verifier SQL. |
 
-**Phase 0 answers the critical question: can we bypass MCP entirely, or does the MCP layer have business logic we need?**
+#### The Flow
 
-### Phase 1: Pre-Indexer (1-2 days)
+```
+Task Runner (per task)
+│
+├─ 1. Read task config (from HuggingFace dataset)
+│     → gets: question, seed_database_file, verifier SQL
+│
+├─ 2. Seed the DB
+│     → POST /api/seed-database with SQL content
+│     → gets back: database_id (e.g. db_1712345678_abc123)
+│
+├─ 3. Export TEAMS_DB=db_1712345678_abc123
+│
+├─ 4. Launch Pi agent with the question
+│     → Agent has: read, write, bash (+ teams CLI on PATH)
+│     → Agent runs: teams list-users, teams create-team, etc.
+│     → CLI reads $TEAMS_DB automatically
+│
+├─ 5. Agent finishes → run verifier SQL against same DB
+│     → SQL checks final DB state
+│     → pass/fail
+│
+└─ 6. Save result → next task
+```
 
-Same pattern as DAB. For each domain:
-1. Connect to PostgreSQL
-2. Extract: tables, columns, types, row counts, FKs, constraints, sample data
-3. Call MCP server's tool listing endpoint → concise summary
-4. Write `indexes/{domain}-index.md`
+#### What the Agent Sees
 
-### Phase 2: Pi Agent Wrapper (1-2 days)
+The agent gets a system prompt with:
+- The task question (e.g. "Create a private channel called 'Design Reviews' in the Engineering team")
+- The Teams CLI reference (tool names, parameters, examples)
+- bash tool to run CLI commands
 
-TypeScript agent using Pi SDK:
-1. Read task from HuggingFace dataset
-2. Inject domain index into AGENTS.md
-3. Run Pi agent session with read/write/bash
-4. Agent writes and executes Python scripts
-5. Capture results for scoring
+The agent never knows about JSON-RPC, ports, headers, or DB IDs. It just types:
+```bash
+teams list-teams
+teams create-channel --teamId team_eng_001 --displayName "Design Reviews" --membershipType private
+```
 
-### Phase 3: Single Domain Test (1-2 days)
+### Phase 2: Run All 61 Teams Tasks
 
-Run all 61 `teams` tasks. Score. Analyze failures. Iterate.
+Score. Analyze failures. Iterate on the CLI and agent prompt.
 
-### Phase 4: Scale to All Domains (2-3 days)
+### Phase 3: Scale to Other Domains
 
-Run remaining 7 domains. Handle domain-specific quirks. Score full benchmark.
+Repeat the CLI pattern for CSM, Email, ITSM, Calendar, HR, Drive. Each domain gets its own CLI.
 
-### Phase 5: Blog Post
+### Phase 4: Blog Post
 
 *"EnterpriseOps-Gym Gives Agents 512 MCP Tools. We Used 3."*
 
@@ -224,21 +263,29 @@ Run remaining 7 domains. Handle domain-specific quirks. Score full benchmark.
 C:\code\EnterpriseOps-Gym\
 ├── AGENTS.md                    ← This file
 ├── benchmark/                   ← Cloned ServiceNow repo
-│   ├── conf/
-│   ├── gym_dbs/
-│   └── ...
+│   ├── evaluate.py
+│   ├── compute_score.py
+│   └── benchmark/
+│       ├── executor.py          ← How they seed DBs & run tasks
+│       └── mcp_client.py        ← create_database_from_file()
+├── Domain Wise DBs and Task-DB Mappings/
+│   └── teams/dbs/               ← 13 SQL snapshots for 61 tasks
+├── gym_dbs.zip                  ← All domain DB snapshots
 ├── agent/                       ← Our Pi coding agent
 │   ├── package.json
 │   ├── tsconfig.json
 │   ├── src/
-│   │   ├── indexer.ts           ← Phase 1: pre-index each domain
-│   │   ├── agent.ts             ← Phase 2: Pi SDK agent per task
-│   │   ├── runner.ts            ← Phase 3-4: batch runner
-│   │   └── scorer.ts            ← Bridge to compute_score.py
-│   └── indexes/                 ← Pre-built domain indexes
-│       ├── teams-index.md
-│       ├── csm-index.md
-│       └── ...
+│   │   ├── client.ts            ← HTTP client: callTool() → MCP JSON-RPC
+│   │   ├── teams-cli.ts         ← CLI binary: `teams list-users --top 5`
+│   │   ├── task-runner.ts       ← Per-task: seed DB → launch agent → verify
+│   │   └── ask-agent.ts         ← Interactive Q&A agent (dev tool)
+│   └── servers/
+│       └── teams/               ← 70 auto-generated tool wrappers
+│           ├── index.ts
+│           ├── README.md         ← CLI reference for the agent
+│           ├── list_users.ts
+│           ├── create_team.ts
+│           └── ...
 └── results/                     ← Output for scoring
 ```
 

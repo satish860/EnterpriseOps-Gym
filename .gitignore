@@ -10,6 +10,9 @@ gym_dbs/
 gym_dbs.zip
 conf/
 
+# DB snapshots (contain fake tokens that trigger GitHub secret scanning)
+Domain Wise DBs and Task-DB Mappings/
+
 # Python
 __pycache__/
 *.pyc
